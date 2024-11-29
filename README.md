@@ -1,54 +1,27 @@
-# LRU Cache Visualizer
 
-![LRU Cache Crew](static/crew.png)
-
----
-
-## 🔍 About the Project
-"LRU Cache Visualizer" is an educational project that demonstrates the **LRU Cache** (Least Recently Used) algorithm in action.  
-This project visually explains how the algorithm optimizes memory usage by removing the least recently used items.
-
-**Key Features**:
-- 🚀 Implemented LRU Cache algorithm using Go.
-- 🖥️ Interactive web interface to manage cache operations.
-- 🎨 Smooth animations for adding and removing items.
-- 🖼️ A fun and engaging meme-based explanation for a better understanding!
-
----
-
-## 📷 Interface Preview
-
-![Interface Preview](static/screenshot.png)
-
----
-
-## 🛠️ Technologies Used
-
-- **Frontend**: HTML, CSS, Vanilla JavaScript
-- **Backend**: Go (Gin Framework)
-- **Animations**: CSS Transitions
-
----
-
-## 🚀 How to Run the Project
+# 🚀 How to Run the Project
 
 ### Step 1: Install Dependencies
+
 Ensure you have:
 - **Go** (version 1.18 or higher).
 - A modern browser to access the user interface.
 
 ### Step 2: Start the Server
+
 Run the following command in your terminal:
+
 ```bash
 go run main.go
+```
 
 ### Step 3: Access the Interface
 
 Open your browser and navigate to:
 
+```
 http://localhost:8080/
-
-
+```
 
 ---
 
@@ -94,3 +67,7 @@ This project is built for educational purposes only. Use it to learn algorithms,
 git add README.md static/crew.png
 git commit -m "Updated README with improved layout and meme"
 git push origin main
+```
+
+4. Verify the changes  
+   Open your GitHub repository in a browser and check the updated `README.md` file to ensure everything appears as intended.
