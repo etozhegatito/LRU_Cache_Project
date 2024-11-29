@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRU Cache Visualizer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>LRU Cache Visualizer</h1>
+        <div class="input-group">
+            <input id="key" type="text" placeholder="Enter key">
+            <input id="value" type="text" placeholder="Enter value">
+            <button onclick="putCache()">Add to Cache</button>
+            <button onclick="getCache()">Get from Cache</button>
+        </div>
+        <div id="message"></div>
+        <h2>Cache Contents:</h2>
+        <div id="cache-view"></div>
+        <h2>Deleted Items History:</h2>
+        <table id="deleted-history">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                    <th>Deleted At</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        const apiUrl = "http://localhost:8080/api/lru/";
+
+        async function fetchCache() {
+            const response = await fetch(apiUrl + "view");
+            const data = await response.json();
+            displayCache(data.cache);
+        }
+
+        async function fetchHistory() {
+            const response = await fetch(apiUrl + "history");
+            const data = await response.json();
+            displayHistory(data.history);
+        }
+
+        async function putCache() {
+            const key = document.getElementById("key").value;
+            const value = document.getElementById("value").value;
+            const response = await fetch(apiUrl + "put", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key, value }),
+            });
+            const data = await response.json();
+            document.getElementById("message").textContent = data.message;
+            fetchCache();
+            fetchHistory();
+        }
+
+        async function getCache() {
+            const key = document.getElementById("key").value;
+            const response = await fetch(apiUrl + "get/" + key);
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById("message").textContent = `Cache hit: ${data.value}`;
+            } else {
+                document.getElementById("message").textContent = data.message;
+            }
+        }
+
+        function displayCache(cache) {
+            const cacheView = document.getElementById("cache-view");
+            cacheView.innerHTML = "";
+            for (const [key, value] of Object.entries(cache)) {
+                const div = document.createElement("div");
+                div.classList.add("cache-item");
+                div.textContent = `${key}: ${value}`;
+                cacheView.appendChild(div);
+            }
+        }
+
+        function displayHistory(history) {
+            const tbody = document.querySelector("#deleted-history tbody");
+            tbody.innerHTML = "";
+            history.forEach((item) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${item.key}</td><td>${item.value}</td><td>${item.timestamp}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        fetchCache();
+        fetchHistory();
+    </script>
+</body>
+</html>
