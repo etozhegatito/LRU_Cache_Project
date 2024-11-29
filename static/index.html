@@ -4,22 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LRU Cache Visualizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <div class="background-image"></div>
     <div class="container">
-        <h1>LRU Cache Visualizer</h1>
-        <div class="input-group">
+        <h1 class="fade-in">LRU Cache Visualizer</h1>
+        <div class="input-group fade-in">
             <input id="key" type="text" placeholder="Enter key">
             <input id="value" type="text" placeholder="Enter value">
             <button onclick="putCache()">Add to Cache</button>
             <button onclick="getCache()">Get from Cache</button>
         </div>
-        <div id="message"></div>
-        <h2>Cache Contents:</h2>
-        <div id="cache-view"></div>
-        <h2>Deleted Items History:</h2>
-        <table id="deleted-history">
+        <div id="message" class="fade-in"></div>
+        <h2 class="fade-in">Cache Contents:</h2>
+        <div id="cache-view" class="fade-in"></div>
+        <h2 class="fade-in">Deleted Items History:</h2>
+        <table id="deleted-history" class="fade-in">
             <thead>
                 <tr>
                     <th>Key</th>
@@ -30,6 +32,17 @@
             <tbody></tbody>
         </table>
     </div>
+
+    <div class="animation-container">
+        <img src="static/chillguy.png" alt="LRU Cache Explanation" class="animated-image">
+        <div class="animated-text">
+            <p>LRU Cache:</p>
+            <p>This algorithm efficiently</p>
+            <p>removes the least recently used</p>
+            <p>items to optimize storage.</p>
+        </div>
+    </div>
+
     <script>
         const apiUrl = "http://localhost:8080/api/lru/";
 
@@ -55,6 +68,11 @@
             });
             const data = await response.json();
             document.getElementById("message").textContent = data.message;
+
+            if (data.removedKey) {
+                animateCacheRemoval(data.removedKey);
+            }
+
             fetchCache();
             fetchHistory();
         }
@@ -76,6 +94,7 @@
             for (const [key, value] of Object.entries(cache)) {
                 const div = document.createElement("div");
                 div.classList.add("cache-item");
+                div.dataset.key = key;
                 div.textContent = `${key}: ${value}`;
                 cacheView.appendChild(div);
             }
@@ -90,6 +109,34 @@
                 tbody.appendChild(row);
             });
         }
+
+        function animateCacheRemoval(key) {
+            const element = document.querySelector(`.cache-item[data-key="${key}"]`);
+            if (element) {
+                element.classList.add("fade-out"); 
+                setTimeout(() => {
+                    element.remove(); 
+                }, 2000); 
+            }
+        }
+
+        window.onload = () => {
+            const fadeIns = document.querySelectorAll(".fade-in");
+            fadeIns.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.add("visible");
+                }, index * 300); 
+            });
+
+            
+            const image = document.querySelector(".animated-image");
+            const text = document.querySelector(".animated-text");
+
+            setTimeout(() => {
+                image.classList.add("slide-in");
+                text.classList.add("text-fade-in");
+            }, 500); 
+        };
 
         fetchCache();
         fetchHistory();

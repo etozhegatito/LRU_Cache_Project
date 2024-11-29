@@ -7,23 +7,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// LRUCache структура для кэша
 type LRUCache struct {
 	capacity int
 	cache    map[string]string
 	order    []string
 }
 
-// DeletedItem структура для истории удалённых элементов
 type DeletedItem struct {
 	Key       string `json:"key"`
 	Value     string `json:"value"`
 	Timestamp string `json:"timestamp"`
 }
 
-var deletedHistory []DeletedItem // Хранение удалённых элементов
+var deletedHistory []DeletedItem
 
-// Создание нового LRU Cache
 func NewLRUCache(capacity int) *LRUCache {
 	return &LRUCache{
 		capacity: capacity,
@@ -41,12 +38,15 @@ func (l *LRUCache) Get(key string) (string, bool) {
 	return value, true
 }
 
-func (l *LRUCache) Put(key, value string) {
+func (l *LRUCache) Put(key, value string) string {
+	var removedKey string
+
 	if _, exists := l.cache[key]; exists {
 		l.cache[key] = value
 		l.updateOrder(key)
-		return
+		return removedKey
 	}
+
 	if len(l.cache) >= l.capacity {
 		oldest := l.order[0]
 		l.order = l.order[1:]
@@ -55,10 +55,13 @@ func (l *LRUCache) Put(key, value string) {
 			Value:     l.cache[oldest],
 			Timestamp: time.Now().Format("2006-01-02 15:04:05"),
 		})
+		removedKey = oldest
 		delete(l.cache, oldest)
 	}
+
 	l.cache[key] = value
 	l.order = append(l.order, key)
+	return removedKey
 }
 
 func (l *LRUCache) updateOrder(key string) {
@@ -80,6 +83,10 @@ func main() {
 	cache := NewLRUCache(5)
 
 	r.Static("/static", "./static")
+
+	r.GET("/favicon.ico", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	})
 
 	r.GET("/", func(c *gin.Context) {
 		c.File("./static/index.html")
@@ -108,8 +115,9 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input"})
 			return
 		}
-		cache.Put(json.Key, json.Value)
-		c.JSON(http.StatusOK, gin.H{"message": "Item added to cache"})
+
+		removedKey := cache.Put(json.Key, json.Value)
+		c.JSON(http.StatusOK, gin.H{"message": "Item added to cache", "removedKey": removedKey})
 	})
 
 	r.GET("/api/lru/history", func(c *gin.Context) {
